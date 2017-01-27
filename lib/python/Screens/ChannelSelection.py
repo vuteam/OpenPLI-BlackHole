@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Tools.Profile import profile
 from Screen import Screen
 import Screens.InfoBar
@@ -1775,17 +1774,20 @@ class ChannelSelectionBase(Screen):
 
     def gotoCurrentServiceOrProvider(self, ref):
         str = ref.toString()
-        playingref = self.session.nav.getCurrentlyPlayingServiceReference()
         if _('Providers') in str:
             service = self.session.nav.getCurrentService()
             if service:
                 info = service.info()
-                if info and playingref:
+                if info:
                     provider = info.getInfoString(iServiceInformation.sProvider)
-                    op = int(playingref.toString().split(':')[6][:-4] or "0",16)
- 					refstr = '1:7:0:0:0:0:0:0:0:0:(provider == \"%s\") && (satellitePosition == %s) && %s ORDER BY name:%s' % (provider, op, self.service_types[self.service_types.rfind(':')+1:], provider)
+                    op = int(self.session.nav.getCurrentlyPlayingServiceOrGroup().toString().split(':')[6][:-4] or '0', 16)
+                    refstr = '1:7:0:0:0:0:0:0:0:0:(provider == "%s") && (satellitePosition == %s) && %s ORDER BY name:%s' % (provider,
+                     op,
+                     self.service_types[self.service_types.rfind(':') + 1:],
+                     provider)
                     self.setCurrentSelection(eServiceReference(refstr))
         elif not self.isBasePathEqual(self.bouquet_root) or self.bouquet_mark_edit == EDIT_ALTERNATIVES:
+            playingref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
             if playingref:
                 self.setCurrentSelectionAlternative(playingref)
 
@@ -2056,10 +2058,10 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
     def addToHistory(self, ref):
         if self.delhistpoint is not None:
             x = self.delhistpoint
-            while x <= len(self.history)-1:
+            while x <= len(self.history) - 1:
                 del self.history[x]
-        self.delhistpoint = None
 
+        self.delhistpoint = None
         if self.servicePath is not None:
             tmp = self.servicePath[:]
             tmp.append(ref)
@@ -2084,7 +2086,7 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
         if hlen > 1 and self.history_pos > 0:
             self.history_pos -= 1
             self.setHistoryPath()
-        self.delhistpoint = self.history_pos+1
+        self.delhistpoint = self.history_pos + 1
 
     def historyNext(self):
         hlen = len(self.history)
@@ -2112,38 +2114,45 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 
     def historyClear(self):
         if self and self.servicelist:
-            for i in range(0, len(self.history)-1):
+            for i in range(0, len(self.history) - 1):
                 del self.history[0]
-            self.history_pos = len(self.history)-1
+
+            self.history_pos = len(self.history) - 1
             return True
         return False
 
     def historyZap(self, direction):
         hlen = len(self.history)
-        if hlen < 1: return
+        if hlen < 1:
+            return
         mark = self.history_pos
         selpos = self.history_pos + direction
-        if selpos < 0: selpos = 0
-        if selpos > hlen-1: selpos = hlen-1
+        if selpos < 0:
+            selpos = 0
+        if selpos > hlen - 1:
+            selpos = hlen - 1
         serviceHandler = eServiceCenter.getInstance()
-        historylist = [ ]
+        historylist = []
         for x in self.history:
             info = serviceHandler.info(x[-1])
-            if info: historylist.append((info.getName(x[-1]), x[-1]))
+            if info:
+                historylist.append((info.getName(x[-1]), x[-1]))
+
         self.session.openWithCallback(self.historyMenuClosed, HistoryZapSelector, historylist, selpos, mark, invert_items=True, redirect_buttons=True, wrap_around=True)
 
     def historyMenuClosed(self, retval):
-        if not retval: return
+        if not retval:
+            return
         hlen = len(self.history)
         pos = 0
         for x in self.history:
-            if x[-1] == retval: break
+            if x[-1] == retval:
+                break
             pos += 1
-        self.delhistpoint = pos+1
+
+        self.delhistpoint = pos + 1
         if pos < hlen and pos != self.history_pos:
             tmp = self.history[pos]
-            # self.history.append(tmp)
-            # del self.history[pos]
             self.history_pos = pos
             self.setHistoryPath()
 
@@ -2531,8 +2540,10 @@ class SimpleChannelSelection(ChannelSelectionBase, SelectionEventInfo):
         self.setRadioMode()
         self.showFavourites()
 
+
 class HistoryZapSelector(Screen):
-    def __init__(self, session, items=[], sel_item=0, mark_item=0, invert_items=False, redirect_buttons=False, wrap_around=True):
+
+    def __init__(self, session, items = [], sel_item = 0, mark_item = 0, invert_items = False, redirect_buttons = False, wrap_around = True):
         Screen.__init__(self, session)
         self.redirectButton = redirect_buttons
         self.invertItems = invert_items
@@ -2540,69 +2551,81 @@ class HistoryZapSelector(Screen):
             self.currentPos = len(items) - sel_item - 1
         else:
             self.currentPos = sel_item
-        self["actions"] = ActionMap(["OkCancelActions", "InfobarCueSheetActions"],
-            {
-                "ok": self.okbuttonClick,
-                "cancel": self.cancelClick,
-                "jumpPreviousMark": self.prev,
-                "jumpNextMark": self.next,
-                "toggleMark": self.okbuttonClick,
-            })
-        self.setTitle(_("History zap..."))
+        self['actions'] = ActionMap(['OkCancelActions', 'InfobarCueSheetActions'], {'ok': self.okbuttonClick,
+         'cancel': self.cancelClick,
+         'jumpPreviousMark': self.prev,
+         'jumpNextMark': self.next,
+         'toggleMark': self.okbuttonClick})
+        self.setTitle(_('History zap...'))
         self.list = []
         cnt = 0
         serviceHandler = eServiceCenter.getInstance()
         for x in items:
-
             info = serviceHandler.info(x[-1])
             if info:
                 orbpos = self.getOrbitalPos(ServiceReference(x[1]))
                 serviceName = info.getName(x[-1])
                 if serviceName is None:
-                    serviceName = ""
-                eventName = ""
-                descriptionName = ""
-                durationTime = ""
-                # if config.plugins.SetupZapSelector.event.value != "0":
+                    serviceName = ''
+                eventName = ''
+                descriptionName = ''
+                durationTime = ''
                 event = info.getEvent(x[-1])
                 if event:
                     eventName = event.getEventName()
                     if eventName is None:
-                        eventName = ""
+                        eventName = ''
                     else:
-                        eventName = eventName.replace('(18+)', '').replace('18+', '').replace('(16+)', '').replace('16+', '').replace('(12+)', '').replace('12+', '').replace('(7+)', '').replace('7+', '').replace('(6+)', '').replace('6+', '').replace('(0+)', '').replace('0+', '') 
-                    # if config.plugins.SetupZapSelector.event.value == "2":
+                        eventName = eventName.replace('(18+)', '').replace('18+', '').replace('(16+)', '').replace('16+', '').replace('(12+)', '').replace('12+', '').replace('(7+)', '').replace('7+', '').replace('(6+)', '').replace('6+', '').replace('(0+)', '').replace('0+', '')
                     descriptionName = event.getShortDescription()
-                    if descriptionName is None or descriptionName == "":
+                    if descriptionName is None or descriptionName == '':
                         descriptionName = event.getExtendedDescription()
                         if descriptionName is None:
-                            descriptionName = ""
-                    # if config.plugins.SetupZapSelector.duration.value:
+                            descriptionName = ''
                     begin = event.getBeginTime()
                     if begin is not None:
                         end = begin + event.getDuration()
                         remaining = (end - int(time())) / 60
-                        prefix = ""
+                        prefix = ''
                         if remaining > 0:
-                            prefix = "+"
+                            prefix = '+'
                         local_begin = localtime(begin)
                         local_end = localtime(end)
-                        durationTime = _("%02d.%02d - %02d.%02d (%s%d min)") % (local_begin[3],local_begin[4],local_end[3],local_end[4],prefix, remaining)
-
-            png = ""
+                        durationTime = _('%02d.%02d - %02d.%02d (%s%d min)') % (local_begin[3],
+                         local_begin[4],
+                         local_end[3],
+                         local_end[4],
+                         prefix,
+                         remaining)
+            png = ''
             picon = getPiconName(str(ServiceReference(x[1])))
-            if picon != "":
+            if picon != '':
                 png = loadPNG(picon)
             if self.invertItems:
-                self.list.insert(0, (x[1], cnt == mark_item and "»" or "", x[0], eventName, descriptionName, durationTime, png, orbpos))
+                self.list.insert(0, (x[1],
+                 cnt == mark_item and '\xc2\xbb' or '',
+                 x[0],
+                 eventName,
+                 descriptionName,
+                 durationTime,
+                 png,
+                 orbpos))
             else:
-                self.list.append((x[1], cnt == mark_item and "»" or "", x[0], eventName, descriptionName, durationTime, png, orbpos))
+                self.list.append((x[1],
+                 cnt == mark_item and '\xc2\xbb' or '',
+                 x[0],
+                 eventName,
+                 descriptionName,
+                 durationTime,
+                 png,
+                 orbpos))
             cnt += 1
-        self["menu"] = List(self.list, enableWrapAround=wrap_around)
+
+        self['menu'] = List(self.list, enableWrapAround=wrap_around)
         self.onShown.append(self.__onShown)
 
     def __onShown(self):
-        self["menu"].index = self.currentPos
+        self['menu'].index = self.currentPos
 
     def prev(self):
         if self.redirectButton:
@@ -2617,13 +2640,13 @@ class HistoryZapSelector(Screen):
             self.down()
 
     def up(self):
-        self["menu"].selectPrevious()
+        self['menu'].selectPrevious()
 
     def down(self):
-        self["menu"].selectNext()
+        self['menu'].selectNext()
 
     def getCurrent(self):
-        cur = self["menu"].current
+        cur = self['menu'].current
         return cur and cur[0]
 
     def okbuttonClick(self):
@@ -2633,22 +2656,22 @@ class HistoryZapSelector(Screen):
         self.close(None)
 
     def getOrbitalPos(self, ref):
- 		refstr = None
- 		if hasattr(ref, 'sref'):
- 			refstr = str(ref.sref)
- 		else:
- 			refstr = str(ref)
- 		refstr = refstr and GetWithAlternative(refstr)
- 		print 'refstr:',refstr
- 		if '%3a//' in refstr:
- 			return "%s" % _("Stream")
- 		op = int(refstr.split(':', 10)[6][:-4] or "0",16)
- 		if op == 0xeeee:
- 			return "%s" % _("DVB-T")
- 		if op == 0xffff:
- 			return "%s" % _("DVB-C")
- 		direction = 'E'
- 		if op > 1800:
- 			op = 3600 - op
- 			direction = 'W'
- 		return ("%d.%d\xc2\xb0%s") % (op // 10, op % 10, direction)
+        refstr = None
+        if hasattr(ref, 'sref'):
+            refstr = str(ref.sref)
+        else:
+            refstr = str(ref)
+        refstr = refstr and GetWithAlternative(refstr)
+        print 'refstr:', refstr
+        if '%3a//' in refstr:
+            return '%s' % _('Stream')
+        op = int(refstr.split(':', 10)[6][:-4] or '0', 16)
+        if op == 61166:
+            return '%s' % _('DVB-T')
+        if op == 65535:
+            return '%s' % _('DVB-C')
+        direction = 'E'
+        if op > 1800:
+            op = 3600 - op
+            direction = 'W'
+        return '%d.%d\xc2\xb0%s' % (op // 10, op % 10, direction)
