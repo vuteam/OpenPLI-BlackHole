@@ -473,7 +473,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 
 	m_sourceinfo.is_video = FALSE;
 	m_sourceinfo.audiotype = atUnknown;
-	if ( (strcasecmp(ext, ".mpeg") && (strcasecmp(ext, ".mpe") && strcasecmp(ext, ".mpg") && strcasecmp(ext, ".vob") && strcasecmp(ext, ".bin") && strcasecmp(ext, ".dat") ) == 0 )
+	if ( (strcasecmp(ext, ".mpeg") && strcasecmp(ext, ".mpe") && strcasecmp(ext, ".mpg") && strcasecmp(ext, ".vob") && strcasecmp(ext, ".bin") && strcasecmp(ext, ".dat") ) == 0 )
 	{
 		m_sourceinfo.containertype = ctMPEGPS;
 		m_sourceinfo.is_video = TRUE;
