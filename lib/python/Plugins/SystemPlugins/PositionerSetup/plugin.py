@@ -106,8 +106,14 @@ class PositionerSetup(Screen):
 			del feInfo
 			del service
 			if self.oldref and getCurrentTuner is not None:
-				if getCurrentTuner < 4 and self.feid == getCurrentTuner:
+				if self.feid == getCurrentTuner:
 					self.oldref_stop = True
+				else:
+					for n in nimmanager.nim_slots:
+						if n.config_mode in ("loopthrough", "satposdepends"):
+							root_id = nimmanager.sec.getRoot(n.slot_id, int(n.config.connectedTo.value))
+							if int(n.config.connectedTo.value) == self.feid:
+								self.oldref_stop = True
 				if self.oldref_stop:
 					self.session.nav.stopService() # try to disable foreground service
 					if getCurrentSat is not None and getCurrentSat in self.availablesats:
@@ -125,7 +131,7 @@ class PositionerSetup(Screen):
 						frontendData = feInfo.getAll(True)
 						getCurrentTuner = frontendData and frontendData.get("tuner_number", None)
 						getCurrentSat = cur_pip_info.get('orbital_position', None)
-						if getCurrentTuner is not None and getCurrentTuner < 4 and self.feid == getCurrentTuner:
+						if getCurrentTuner is not None and self.feid == getCurrentTuner:
 							if getCurrentSat is not None and getCurrentSat in self.availablesats:
 								cur = cur_pip_info
 							else:
@@ -165,13 +171,13 @@ class PositionerSetup(Screen):
 		self.stopOnLock = False
 
 		self.red = Button("")
-		self["red"] = self.red
+		self["key_red"] = self.red
 		self.green = Button("")
-		self["green"] = self.green
+		self["key_green"] = self.green
 		self.yellow = Button("")
-		self["yellow"] = self.yellow
+		self["key_yellow"] = self.yellow
 		self.blue = Button("")
-		self["blue"] = self.blue
+		self["key_blue"] = self.blue
 
 		self.list = []
 		self["list"] = ConfigList(self.list)
@@ -254,7 +260,7 @@ class PositionerSetup(Screen):
 
 	def __onClose(self):
 		self.statusTimer.stop()
-		log.close();
+		log.close()
 		self.session.nav.playService(self.oldref)
 
 	def OrbToStr(self, orbpos):
@@ -1230,9 +1236,9 @@ class PositionerSetupLog(Screen):
 			<ePixmap name="green"  position="230,0" zPosition="2" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
 			<ePixmap name="blue"   position="420,0" zPosition="2" size="140,40" pixmap="skin_default/buttons/blue.png" transparent="1" alphatest="on" />
 
-			<widget name="red" position="0,0" size="140,40" valign="center" halign="center" zPosition="4"  foregroundColor="white" font="Regular;20" transparent="1" shadowColor="background" shadowOffset="-2,-2" />
-			<widget name="green" position="230,0" size="140,40" halign="center" valign="center"  zPosition="4"  foregroundColor="white" font="Regular;20" transparent="1" shadowColor="background" shadowOffset="-2,-2" />
-			<widget name="blue" position="420,0" size="140,40" valign="center" halign="center" zPosition="4"  foregroundColor="white" font="Regular;20" transparent="1" shadowColor="background" shadowOffset="-2,-2" />
+			<widget name="key_red" position="0,0" size="140,40" valign="center" halign="center" zPosition="4"  foregroundColor="white" font="Regular;20" transparent="1" shadowColor="background" shadowOffset="-2,-2" />
+			<widget name="key_green" position="230,0" size="140,40" halign="center" valign="center"  zPosition="4"  foregroundColor="white" font="Regular;20" transparent="1" shadowColor="background" shadowOffset="-2,-2" />
+			<widget name="key_blue" position="420,0" size="140,40" valign="center" halign="center" zPosition="4"  foregroundColor="white" font="Regular;20" transparent="1" shadowColor="background" shadowOffset="-2,-2" />
 
 			<ePixmap alphatest="on" pixmap="skin_default/icons/clock.png" position="480,383" size="14,14" zPosition="3"/>
 			<widget font="Regular;18" halign="left" position="505,380" render="Label" size="55,20" source="global.CurrentTime" transparent="1" valign="center" zPosition="3">
@@ -1245,9 +1251,9 @@ class PositionerSetupLog(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 		self.setTitle(_("Positioner setup log"))
-		self["red"] = Button(_("Exit/OK"))
-		self["green"] = Button(_("Save"))
-		self["blue"] = Button(_("Clear"))
+		self["key_red"] = Button(_("Exit/OK"))
+		self["key_green"] = Button(_("Save"))
+		self["key_blue"] = Button(_("Clear"))
 		self["list"] = ScrollLabel(log.getvalue())
 		self["actions"] = ActionMap(["DirectionActions", "OkCancelActions", "ColorActions"],
 		{
