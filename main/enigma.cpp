@@ -30,7 +30,6 @@
 #include <lib/python/connections.h>
 #include <lib/python/python.h>
 #include <lib/python/pythonconfig.h>
-#include <lib/service/servicepeer.h>
 
 #include "bsod.h"
 #include "version_info.h"
@@ -97,9 +96,6 @@ void keyEvent(const eRCKey &key)
 #include <lib/dvb/dvbtime.h>
 #include <lib/dvb/epgcache.h>
 
-/* Defined in eerror.cpp */
-void setDebugTime(bool enable);
-
 class eMain: public eApplication, public Object
 {
 	eInit init;
@@ -113,8 +109,7 @@ class eMain: public eApplication, public Object
 public:
 	eMain()
 	{
-	        e2avahi_init(this);
- 		init_servicepeer();
+		e2avahi_init(this);
 		init.setRunlevel(eAutoInitNumbers::main);
 		/* TODO: put into init */
 		m_dvbdb = new eDVBDB();
@@ -128,8 +123,7 @@ public:
 	{
 		m_dvbdb->saveServicelist();
 		m_mgr->releaseCachedChannel();
-		done_servicepeer();
-  		e2avahi_close();
+		e2avahi_close();
 	}
 };
 
@@ -194,17 +188,16 @@ int main(int argc, char **argv)
 	printf("PYTHONPATH: %s\n", getenv("PYTHONPATH"));
 	printf("DVB_API_VERSION %d DVB_API_VERSION_MINOR %d\n", DVB_API_VERSION, DVB_API_VERSION_MINOR);
 
-	// get enigma2 debug level settings
+	// get enigma2 debug level
 	debugLvl = getenv("ENIGMA_DEBUG_LVL") ? atoi(getenv("ENIGMA_DEBUG_LVL")) : 3;
 	if (debugLvl < 0)
 		debugLvl = 0;
-	printf("ENIGMA_DEBUG_LVL=%d\n", debugLvl);
-	if (getenv("ENIGMA_DEBUG_TIME"))
-		setDebugTime(atoi(getenv("ENIGMA_DEBUG_TIME")) != 0);
+	printf("ENIGMA2_DEBUG settings: Level=%d\n", debugLvl);
 
 	ePython python;
 	eMain main;
 
+#if 1
 	ePtr<gMainDC> my_dc;
 	gMainDC::getInstance(my_dc);
 
@@ -241,6 +234,7 @@ int main(int argc, char **argv)
 	dsk_lcd.setDC(my_lcd_dc);
 
 	dsk.setBackgroundColor(gRGB(0,0,0,0xFF));
+#endif
 
 		/* redrawing is done in an idle-timer, so we have to set the context */
 	dsk.setRedrawTask(main);
@@ -353,20 +347,3 @@ void dump_malloc_stats(void)
 	struct mallinfo mi = mallinfo();
 	eDebug("MALLOC: %d total", mi.uordblks);
 }
-
-#ifdef USE_LIBVUGLES2
-#include <vuplus_gles.h>
-
-void setAnimation_current(int a)
-{
-	gles_set_animation_func(a);
-}
-
-void setAnimation_speed(int speed)
-{
-	gles_set_animation_speed(speed);
-}
-#else
-void setAnimation_current(int a) {}
-void setAnimation_speed(int speed) {}
-#endif
