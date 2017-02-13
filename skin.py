@@ -17,62 +17,75 @@ fonts = {'Body': ('Regular', 18, 22, 16),
  'ChoiceList': ('Regular', 20, 24, 18)}
 parameters = {}
 
-def dump(x, i = 0):
-    print ' ' * i + str(x)
-    try:
-        for n in x.childNodes:
-            dump(n, i + 1)
-
-    except:
-        None
+def dump(x, i=0):
+        print " " * i + str(x)
+        try:
+                for n in x.childNodes:
+                        dump(n, i + 1)
+        except:
+                None
 
 
 class SkinError(Exception):
+        def __init__(self, message):
+                self.msg = message
 
-    def __init__(self, message):
-        self.msg = message
-
-    def __str__(self):
-        return "{%s}: %s. Please contact the skin's author!" % config.skin.primary_skin.value, self.msg
+        def __str__(self):
+                return "{%s}: %s. Please contact the skin's author!" % (config.skin.primary_skin.value, self.msg)
 
 
 dom_skins = []
 
 def addSkin(name, scope = SCOPE_SKIN):
-    global dom_skins
-    filename = resolveFilename(scope, name)
-    if fileExists(filename):
-        mpath = os.path.dirname(filename) + '/'
-        try:
-            dom_skins.append((mpath, xml.etree.cElementTree.parse(filename).getroot()))
-        except:
-            print '[SKIN ERROR] error in %s' % filename
-            return False
+        # read the skin
+        global dom_skins
+        filename = resolveFilename(scope, name)
+        if fileExists(filename):
+                mpath = os.path.dirname(filename) + "/"
+                try:
+                        dom_skins.append((mpath, xml.etree.cElementTree.parse(filename).getroot()))
+                except:
+                        print "[SKIN ERROR] error in %s" % filename
+                        return False
+                else:
+                        return True
+        return False
 
-        return True
-    return False
 
-
+# get own skin_user_skinname.xml file, if exist
 def skin_user_skinname():
-    name = 'skin_user_' + config.skin.primary_skin.value[:config.skin.primary_skin.value.rfind('/')] + '.xml'
-    filename = resolveFilename(SCOPE_CONFIG, name)
-    if fileExists(filename):
-        return name
+        name = "skin_user_" + config.skin.primary_skin.value[:config.skin.primary_skin.value.rfind('/')] + ".xml"
+        filename = resolveFilename(SCOPE_CONFIG, name)
+        if fileExists(filename):
+                return name
+        return None
 
+# we do our best to always select the "right" value
+# skins are loaded in order of priority: skin with
+# highest priority is loaded last, usually the user-provided
+# skin.
 
+# currently, loadSingleSkinData (colors, bordersets etc.)
+# are applied one-after-each, in order of ascending priority.
+# the dom_skin will keep all screens in descending priority,
+# so the first screen found will be used.
+
+# example: loadSkin("nemesis_greenline/skin.xml")
 config.skin = ConfigSubsection()
-DEFAULT_SKIN = 'skin.xml'
+DEFAULT_SKIN = "skin.xml"
 if not fileExists(resolveFilename(SCOPE_SKIN, DEFAULT_SKIN)):
-    DEFAULT_SKIN = 'Magic/skin.xml'
+        # in that case, fallback to Magic (which is an SD skin)
+        DEFAULT_SKIN = "Magic/skin.xml"
 config.skin.primary_skin = ConfigText(default=DEFAULT_SKIN)
 config.skin.xres = ConfigInteger(default=0)
-profile('LoadSkin')
+
+profile("LoadSkin")
 res = None
 name = skin_user_skinname()
 if name:
-    res = addSkin(name, SCOPE_CONFIG)
+        res = addSkin(name, SCOPE_CONFIG)
 if not name or not res:
-    addSkin('skin_user.xml', SCOPE_CONFIG)
+        addSkin('skin_user.xml', SCOPE_CONFIG)
 addSkin('skin_box.xml')
 addSkin('skin_second_infobar.xml')
 display_skin_id = 1
@@ -80,17 +93,17 @@ addSkin('skin_display.xml')
 addSkin('skin_text.xml')
 addSkin('skin_subtitles.xml')
 try:
-    if not addSkin(config.skin.primary_skin.value):
-        raise SkinError, 'primary skin not found'
+        if not addSkin(config.skin.primary_skin.value):
+                raise SkinError, 'primary skin not found'
 except Exception as err:
-    print 'SKIN ERROR:', err
-    skin = DEFAULT_SKIN
-    if config.skin.primary_skin.value == skin:
-        skin = 'skin.xml'
-    print 'defaulting to standard skin...', skin
-    config.skin.primary_skin.value = skin
-    addSkin(skin)
-    del skin
+        print 'SKIN ERROR:', err
+        skin = DEFAULT_SKIN
+        if config.skin.primary_skin.value == skin:
+                skin = 'skin.xml'
+        print 'defaulting to standard skin...', skin
+        config.skin.primary_skin.value = skin
+        addSkin(skin)
+        del skin
 
 addSkin('skin_default.xml')
 profile('LoadSkinDefaultDone')
@@ -654,8 +667,8 @@ def loadSkinData(desktop):
 
 
 class additionalWidget:
-	       def __init__(self):
- 		             pass
+               def __init__(self):
+                             pass
 
 # Class that makes a tuple look like something else. Some plugins just assume
 # that size is a string and try to parse it. This class makes that work.
