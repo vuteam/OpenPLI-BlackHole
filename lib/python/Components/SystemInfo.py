@@ -49,5 +49,3 @@ SystemInfo["HasForceToneburst"] = fileCheck("/proc/stb/frontend/fbc/force_tonebu
 SystemInfo["HasBypassEdidChecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["HaveColorspace"] = fileCheck("/proc/stb/video/hdmi_colorspace")
 SystemInfo["HaveColorspaceSimple"] = SystemInfo["HaveColorspace"] and HardwareInfo().get_device_model() in "vusolo4k"
-SystemInfo["HasMultichannelPCM"] = fileCheck("/proc/stb/audio/multichannel_pcm")
-SystemInfo["HasHDMIpreemphasis"] = fileCheck("/proc/stb/hdmi/preemphasis")
