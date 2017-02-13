@@ -33,7 +33,7 @@ class SkinError(Exception):
         self.msg = message
 
     def __str__(self):
-        return "{%s}: %s. Please contact the skin's author!" % (config.skin.primary_skin.value, self.msg)
+        return "{%s}: %s. Please contact the skin's author!" % config.skin.primary_skin.value, self.msg
 
 
 dom_skins = []
@@ -178,7 +178,6 @@ def parseColor(s):
             return colorNames[s]
         except:
             raise SkinError("color '%s' must be #aarrggbb or valid named color" % s)
-
     return gRGB(int(s[1:], 16))
 
 
@@ -516,7 +515,7 @@ def loadSingleSkinData(desktop, skin, path_prefix):
                 print '[SKIN] bad parameter', ex
 
     for c in skin.findall('subtitles'):
-        from enigma import eWidget, eSubtitleWidget
+        from enigma import eSubtitleWidget
         scale = ((1, 1), (1, 1))
         for substyle in c.findall('sub'):
             get_attr = substyle.attrib.get
@@ -574,7 +573,7 @@ def loadSingleSkinData(desktop, skin, path_prefix):
             try:
                 style.setColor(eWindowStyleSkinned.__dict__['col' + colorType], color)
             except:
-                raise SkinError('Unknown color %s' % colorType)
+                raise SkinError("Unknown color %s" % colorType)
 
         x = eWindowStyleManager.getInstance()
         x.setStyle(style_id, style)
@@ -655,13 +654,15 @@ def loadSkinData(desktop):
 
 
 class additionalWidget:
-    pass
+	       def __init__(self):
+ 		             pass
 
-
+# Class that makes a tuple look like something else. Some plugins just assume
+# that size is a string and try to parse it. This class makes that work.
 class SizeTuple(tuple):
 
     def split(self, *args):
-        return (str(self[0]), str(self[1]))
+       return str(self[0]), str(self[1])
 
     def strip(self, *args):
         return '%s,%s' % self
@@ -722,7 +723,7 @@ class SkinContext:
                 size = (w, h)
                 pos = pos.split(',')
                 pos = (self.x + parseCoordinate(pos[0], self.w, size[0], font), self.y + parseCoordinate(pos[1], self.h, size[1], font))
-        return (SizeTuple(pos), SizeTuple(size))
+        return SizeTuple(pos), SizeTuple(size)
 
 
 class SkinContextStack(SkinContext):
@@ -751,7 +752,7 @@ class SkinContextStack(SkinContext):
                 size = (w, h)
                 pos = pos.split(',')
                 pos = (self.x + parseCoordinate(pos[0], self.w, size[0], font), self.y + parseCoordinate(pos[1], self.h, size[1], font))
-        return (SizeTuple(pos), SizeTuple(size))
+        return SizeTuple(pos), SizeTuple(size)
 
 
 def readSkin(screen, skin, names, desktop):
@@ -834,7 +835,7 @@ def readSkin(screen, skin, names, desktop):
                 source = scr.get(path[0])
                 if isinstance(source, ObsoleteSource):
                     print "WARNING: SKIN '%s' USES OBSOLETE SOURCE '%s', USE '%s' INSTEAD!" % (name, wsource, source.new_source)
-                    print 'OBSOLETE SOURCE WILL BE REMOVED %s, PLEASE UPDATE!' % source.removal_date
+                    print "OBSOLETE SOURCE WILL BE REMOVED %s, PLEASE UPDATE!" % source.removal_date
                     if source.description:
                         print source.description
                     wsource = source.new_source
