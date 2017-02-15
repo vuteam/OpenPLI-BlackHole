@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhInterface.py
 from Screens.Screen import Screen
 from Screens.Standby import Standby, TryQuitMainloop
 from Components.Label import Label
