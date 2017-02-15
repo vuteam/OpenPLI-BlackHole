@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhEpgSearch.py
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Screens.EventView import EventViewSimple
