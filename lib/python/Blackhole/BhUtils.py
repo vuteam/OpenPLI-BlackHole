@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhUtils.py
 from re import sub
 from Tools.Directories import fileExists, resolveFilename, SCOPE_CURRENT_SKIN
 import xml.etree.cElementTree
