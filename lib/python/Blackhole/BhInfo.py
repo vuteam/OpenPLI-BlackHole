@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhInfo.py
 from Screens.Screen import Screen
 from Screens.ServiceInfo import ServiceInfo
 from Screens.About import About
