@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhNet.py
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Components.ActionMap import ActionMap
