@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhInadyn.py
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Screens.VirtualKeyBoard import VirtualKeyBoard
