@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhHdd.py
 from Screens.Screen import Screen
 from enigma import eTimer
 from Screens.MessageBox import MessageBox
