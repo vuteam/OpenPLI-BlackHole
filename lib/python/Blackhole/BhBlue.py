@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhBlue.py
 from Screens.Screen import Screen
 from enigma import iServiceInformation, eTimer
 from Components.ActionMap import ActionMap
