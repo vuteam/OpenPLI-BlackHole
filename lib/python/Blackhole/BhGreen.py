@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Blackhole/BhGreen.py
 from Screens.Screen import Screen
 from Components.ActionMap import ActionMap
 from Components.PluginComponent import plugins
