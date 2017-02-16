@@ -35,7 +35,7 @@ class About(Screen):
             driverdate = self.getDriverInstalledDate_proxy()
         self['DriverVersion'] = StaticText(_('DVB drivers: ') + driverdate)
         self['KernelVersion'] = StaticText(_('Kernel version: ') + self.getKernelVersionString())
-        self['FPVersion'] = StaticText('Support: RAED rrrr53@hotmail.com')
+        self['FPVersion'] = StaticText('Support: REDOUANE rakzami39@hotmail.com')
         self['CpuInfo'] = StaticText(_('CPU: ') + self.getCPUInfoString())
         AboutText = _('Hardware: ') + about.getHardwareTypeString() + '\n'
         AboutText += _('CPU: ') + about.getCPUInfoString() + '\n'
@@ -119,7 +119,7 @@ class About(Screen):
 
     def getDriverInstalledDate(self):
         try:
-            driver = os.popen('opkg list-installed | grep dreambox-dvb-modules').read().strip()
+            driver = os.popen('opkg list-installed | grep vuplus-dvb-modules').read().strip()
             driver = driver.split('-')
             return driver[5]
         except:
@@ -127,7 +127,7 @@ class About(Screen):
 
     def getDriverInstalledDate_proxy(self):
         try:
-            driver = os.popen('opkg list-installed | grep dreambox-dvb-proxy').read().strip()
+            driver = os.popen('opkg list-installed | grep vuplus-dvb-proxy').read().strip()
             driver = driver.split('-')
             driver = driver[4].split('.')
             return driver[0]
@@ -192,7 +192,7 @@ class CommitInfo(Screen):
         self['key_red'] = Button(_('Cancel'))
         self.project = 0
         self.projects = [('enigma2', 'Enigma2'),
-         ('Black Hole', 'Depend on Openpli Oe Core'),
+         ('Black Hole', 'Depend on OeAlliance Oe Core'),
          ('enigma2-plugins', 'Enigma2 Plugins'),
          ('aio-grab', 'Aio Grab'),
          ('gst-plugin-dvbmediasink', 'Gst Plugin Dvbmediasink'),
